@@ -142,7 +142,7 @@ def draw_result(img_origin):
     cv2.destroyAllWindows()
 
 
-def LSD_based_lines_and_cross_finding(img_origin):
+def lines_and_cross_finding(img_origin):
     """
     在一张图片上寻找直线并寻找直线的交叉点
     :param img_origin: 用于绘制的原图
@@ -156,5 +156,5 @@ def LSD_based_lines_and_cross_finding(img_origin):
 
 if __name__ == '__main__':
     img = cv2.imread('test-image/2.png')
-    cross_list = LSD_based_lines_and_cross_finding(img)
+    cross_list = lines_and_cross_finding(img)
     print(cross_list)
