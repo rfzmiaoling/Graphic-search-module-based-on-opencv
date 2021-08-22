@@ -1,16 +1,29 @@
-# 这是一个示例 Python 脚本。
+import cv2 as cv
 
-# 按 Shift+F10 执行或将其替换为您的代码。
-# 按 按两次 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
-
-
-def print_hi(name):
-    # 在下面的代码行中使用断点来调试脚本。
-    print(f'Hi, {name}')  # 按 Ctrl+F8 切换断点。
+img_org = cv.imread('test-image/screenshot.png', 0)
 
 
-# 按间距中的绿色按钮以运行脚本。
+def show(img):
+    cv.imshow('img', img)
+    cv.waitKey(0)
+
+
+def 高斯模糊(img=img_org):
+    """
+    高斯模糊可以减少搜索到的边缘数量
+    :param img:
+    :return:
+    """
+    img_Blur = cv.GaussianBlur(img, (5, 5), 0)
+    show(img_Blur)
+    return img_Blur
+
+
+def 边缘检测(img=img_org):
+    img_canny = cv.Canny(img, 100, 200)
+    show(img_canny)
+    return img_canny
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+    边缘检测()
