@@ -1,7 +1,7 @@
 import cv2
 
 
-def LSD(img_origin):
+def LSD(img_origin, entend=True):
     """
     通过LSD算法寻找图片中的直线，返回一个直线起点和终点的列表
     :param img_origin: 需要搜索的原图
@@ -19,7 +19,8 @@ def LSD(img_origin):
         y1 = int(round(line[0][3]))
         len_line = (abs(y1 - y0) ** 0.5 + abs(x1 - x0) ** 0.5) ** 2
         if len_line > 20:
-            x0, y0, x1, y1 = extend_line(x0, y0, x1, y1)
+            if entend:
+                x0, y0, x1, y1 = extend_line(x0, y0, x1, y1)
             cv2.line(img_origin, (x0, y0), (x1, y1), (0, 255, 0), 1, cv2.LINE_AA)
             line_list.append((x0, y0, x1, y1))
     return line_list
@@ -39,19 +40,20 @@ def extend_line(x1, y1, x2, y2, extend_length=3):
         return x1 - 8 * extend_length, y1, x2 + 8 * extend_length, y2
     elif x1 == x2:
         return x1, y1 - 8 * extend_length, x2, y2 + 8 * extend_length
-    elif y2 > y1:
-        k = (y2 - y1) / (x2 - x1)
-        y1 = y1 - extend_length
-        y2 = y2 + extend_length
-        x1 = x1 - k * extend_length
-        x2 = x2 + k * extend_length
-        return int(x1), int(y1), int(x2), int(y2)
-    elif y2 < y1:
-        k = (y1 - y2) / (x1 - x2)
-        y1 = y1 + extend_length
-        y2 = y2 - extend_length
-        x1 = x1 + k * extend_length
-        x2 = x2 - k * extend_length
+    else:
+        k = abs((y2 - y1) / (x2 - x1))
+
+        def extend(pos1, pos2, k):
+            if pos1 > pos2:
+                pos1 = pos1 + k * extend_length
+                pos2 = pos2 - k * extend_length
+            else:
+                pos1 = pos1 - k * extend_length
+                pos2 = pos2 + k * extend_length
+            return pos1, pos2
+
+        y1, y2 = extend(y1, y2, k)
+        x1, x2 = extend(x1, x2, 1)
         return int(x1), int(y1), int(x2), int(y2)
 
 
@@ -120,8 +122,9 @@ def cross_points(img_origin, line_list):
     :param line_list: 直线列表
     :return: 返回交叉点列表
     """
+    from tqdm import tqdm
     cross_list = []
-    for x1, y1, x2, y2 in line_list:
+    for x1, y1, x2, y2 in tqdm(line_list):
         for x3, y3, x4, y4 in line_list:
             point_is_exist, [x, y] = cross_point([x1, y1, x2, y2], [x3, y3, x4, y4])
             if point_is_exist:
@@ -155,6 +158,6 @@ def lines_and_cross_finding(img_origin):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('test-image/2.png')
+    img = cv2.imread('test-image/1.png')
     cross_list = lines_and_cross_finding(img)
     print(cross_list)
